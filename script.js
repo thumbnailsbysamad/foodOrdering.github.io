@@ -113,7 +113,7 @@ function checkout() {
   redirectToPayment(name, cart);
 }
 
-    function redirectToPayment() {
+function redirectToPayment() {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
   const name = document.getElementById("customerName").value.trim();
 
@@ -131,22 +131,26 @@ function checkout() {
     existingUPI.remove();
   }
 
-  // Create payment section with your own QR
+  // Create payment section with properly sized QR
   const div = document.createElement("div");
   div.id = "upiPaymentSection";
-  div.className = "mt-4 text-center";
+  div.className = "mt-6 text-center px-4";
   div.innerHTML = `
-    <p class="mb-2 font-bold text-green-600">Scan to Pay:</p>
-    <img src="images/GooglePay_QR.png" alt="My UPI QR Code" class="mx-auto w-40 shadow rounded-lg" />
-    <p class="text-sm mt-2">
-      or <a href="${upiLink}" class="text-blue-600 underline" target="_blank">Tap to Pay in UPI App</a>
+    <p class="mb-2 font-bold text-green-600 text-base">Scan to Pay:</p>
+    <img src="images/GooglePay_QR.png" alt="My UPI QR Code"
+         class="mx-auto rounded-xl shadow border border-gray-300"
+         style="width: 150px; height: 150px; object-fit: contain;" />
+    
+    <p class="text-sm mt-3">
+      or <a href="${upiLink}" class="text-blue-600 underline font-medium" target="_blank">Tap to Pay in UPI App</a>
     </p>
-    <p class="text-xs mt-1 text-gray-600">UPI ID: ${upiID}</p>
-    <p class="text-xs text-gray-400 mt-1">Amount: ₹${total}</p>
+    <p class="text-xs mt-2 text-gray-600">UPI ID: <span class="font-semibold">${upiID}</span></p>
+    <p class="text-xs text-gray-500 mt-1">Amount: <span class="font-semibold text-black">₹${total}</span></p>
   `;
 
   document.getElementById("cartItems").appendChild(div);
 }
+
 
 function clearCart() {
   localStorage.removeItem("cart");
