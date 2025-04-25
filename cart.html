@@ -6,6 +6,7 @@
   <title>Cart - Coldgen</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://unpkg.com/lucide@0.0.0-beta.9/dist/lucide.min.js"></script>
 </head>
 <body>
   <div class="mobile-frame">
@@ -84,28 +85,40 @@
     }
 
     function redirectToPayment() {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const name = document.getElementById("customerName").value.trim();
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const name = document.getElementById("customerName").value.trim();
 
-      let total = 0;
-      const items = cart.map(item => {
-        total += item.price * item.qty;
-        return `${item.name} x${item.qty}`;
-      }).join(", ");
+  let total = 0;
+  const items = cart.map(item => {
+    total += item.price * item.qty;
+    return `${item.name} x${item.qty}`;
+  }).join(", ");
 
-      const upiID = "samadbro7864-1@okaxis";
-      const upiLink = `upi://pay?pa=${upiID}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR`;
-      const qrLink = `https://upiqr.in/api/qr?name=${encodeURIComponent(name)}&vpa=${upiID}&amount=${total}`;
+  const upiID = "samadbro7864-1@okaxis";
+  const upiLink = `upi://pay?pa=${upiID}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR`;
+  const qrLink = `https://upiqr.in/api/qr?name=${encodeURIComponent(name)}&vpa=${upiID}&amount=${total}`;
 
-      document.getElementById("cartItems").innerHTML += `
-        <div class="mt-4 text-center">
-          <p class="mb-2 font-bold text-green-600">Scan to Pay via Google Pay / PhonePe:</p>
-          <img src="${qrLink}" alt="Scan UPI QR" class="mx-auto rounded shadow w-40">
-          <p class="text-sm mt-2">or <a id="upiPayLink" href="${upiLink}" class="text-blue-600 underline" target="_blank">Click here to pay</a></p>
-          <p class="text-xs mt-2 text-gray-600">UPI ID: ${upiID}</p>
-        </div>
-      `;
-    }
+  // Avoid appending again on multiple button clicks
+  const existingUPI = document.getElementById("upiPaymentSection");
+  if (existingUPI) {
+    existingUPI.remove();
+  }
+
+  const div = document.createElement("div");
+  div.id = "upiPaymentSection";
+  div.className = "mt-4 text-center";
+  div.innerHTML = `
+    <p class="mb-2 font-bold text-green-600">Scan to Pay via GPay / PhonePe:</p>
+    <img src="${qrLink}" alt="Scan UPI QR" class="mx-auto rounded shadow w-40" />
+    <p class="text-sm mt-2">
+      or <a id="upiPayLink" href="${upiLink}" class="text-blue-600 underline" target="_blank">Click here to pay via app</a>
+    </p>
+    <p class="text-xs mt-2 text-gray-600">UPI ID: ${upiID}</p>
+  `;
+
+  document.getElementById("cartItems").appendChild(div);
+}
+
 
     function clearCart() {
       if (confirm("Are you sure you want to clear the cart?")) {
