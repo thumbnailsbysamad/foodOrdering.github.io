@@ -122,7 +122,7 @@ function redirectToPayment() {
     total += item.price * item.qty;
   });
 
-  const upiID = "samadbro7864-1@okaxis";
+  const upiID = "9959864292@yesfam";
   const upiLink = `upi://pay?pa=${upiID}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR`;
 
   // Remove previous payment section if it exists
