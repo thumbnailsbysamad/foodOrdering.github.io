@@ -113,23 +113,39 @@ function checkout() {
   redirectToPayment(name, cart);
 }
 
-function redirectToPayment(name, cart) {
-  let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    function redirectToPayment() {
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const name = document.getElementById("customerName").value.trim();
+
+  let total = 0;
+  cart.forEach(item => {
+    total += item.price * item.qty;
+  });
+
   const upiID = "samadbro7864-1@okaxis";
   const upiLink = `upi://pay?pa=${upiID}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR`;
-  const qrLink = `https://api.qrserver.com/v1/create-qr-code/?data=upi://pay?pa=${upiID}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR&size=200x200`;
 
+  // Remove previous payment section if it exists
+  const existingUPI = document.getElementById("upiPaymentSection");
+  if (existingUPI) {
+    existingUPI.remove();
+  }
 
+  // Create payment section with your own QR
   const div = document.createElement("div");
-  div.className = "payment-section mt-4 text-center";
+  div.id = "upiPaymentSection";
+  div.className = "mt-4 text-center";
   div.innerHTML = `
-    <p class="mb-2 font-bold text-green-600">Scan to Pay via Google Pay / PhonePe:</p>
-    <img src="${qrLink}" alt="Scan UPI QR" class="mx-auto rounded shadow w-40">
-    <p class="text-sm mt-2">or <a href="${upiLink}" class="text-blue-600 underline" target="_blank">Click here to pay</a></p>
-    <p class="text-xs mt-2 text-gray-600">UPI ID: ${upiID}</p>
+    <p class="mb-2 font-bold text-green-600">Scan to Pay:</p>
+    <img src="images/GooglePay_QR.png" alt="My UPI QR Code" class="mx-auto w-40 shadow rounded-lg" />
+    <p class="text-sm mt-2">
+      or <a href="${upiLink}" class="text-blue-600 underline" target="_blank">Tap to Pay in UPI App</a>
+    </p>
+    <p class="text-xs mt-1 text-gray-600">UPI ID: ${upiID}</p>
+    <p class="text-xs text-gray-400 mt-1">Amount: ₹${total}</p>
   `;
+
   document.getElementById("cartItems").appendChild(div);
-  showPopup("UPI QR generated!", "success");
 }
 
 function clearCart() {
