@@ -137,7 +137,7 @@ function redirectToPayment() {
   div.className = "mt-6 text-center px-4";
   div.innerHTML = `
     <p class="mb-2 font-bold text-green-600 text-base">Scan to Pay:</p>
-    <img src="images/GooglePay_QR.png" alt="My UPI QR Code"
+    <img src="images/Screenshot_2025-04-25-21-23-16-178_com.fampay.in-edit.jpg" alt="My UPI QR Code"
          class="mx-auto rounded-xl shadow border border-gray-300"
          style="width: 150px; height: 150px; object-fit: contain;" />
     
