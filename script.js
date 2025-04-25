@@ -117,7 +117,8 @@ function redirectToPayment(name, cart) {
   let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const upiID = "samadbro7864-1@okaxis";
   const upiLink = `upi://pay?pa=${upiID}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR`;
-  const qrLink = `https://upiqr.in/api/qr?name=${encodeURIComponent(name)}&vpa=${upiID}&amount=${total}`;
+  const qrLink = `https://api.qrserver.com/v1/create-qr-code/?data=upi://pay?pa=${upiID}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR&size=200x200`;
+
 
   const div = document.createElement("div");
   div.className = "payment-section mt-4 text-center";
