@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coldgen</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="popup-message" id="welcomePopup">Welcome to Coldgen</div>
+
+  <div class="mobile-frame">
+    <h1 class="heading">Coldgen</h1>
+
+    <div class="card-section">
+      <div class="card" onclick="toggleOptions('milkshake')">
+        <img src="images/Screenshot_2025-04-24_205555-removebg-preview.png" alt="Milkshake" />
+        <p>Milkshake</p>
+      </div>
+      <div class="card" onclick="toggleOptions('coldcoffee')">
+        <img src="images/Screenshot_2025-04-24_210252-removebg-preview.png" alt="Cold Coffee" />
+        <p>Cold Coffee</p>
+      </div>
+    </div>
+
+    <!-- Milkshake Options -->
+    <div class="food-options" id="milkshake-options">
+      <div class="food-card" data-id="101" data-name="🍓 Strawberry Shake" data-price="120">
+        <img src="images/strawberry.png" alt="Strawberry Shake" />
+        <div class="food-info">
+          <h4>🍓 Strawberry Shake</h4>
+          <p>₹120 • 300ml</p>
+          <div class="quantity-control">
+            <button onclick="decreaseQty(this)">−</button>
+            <span class="qty">0</span>
+            <button onclick="increaseQty(this)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="food-card" data-id="102" data-name="🍫 Chocolate Shake" data-price="130">
+        <img src="images/chocolate.png" alt="Chocolate Shake" />
+        <div class="food-info">
+          <h4>🍫 Chocolate Shake</h4>
+          <p>₹130 • 350ml</p>
+          <div class="quantity-control">
+            <button onclick="decreaseQty(this)">−</button>
+            <span class="qty">0</span>
+            <button onclick="increaseQty(this)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="food-card" data-id="103" data-name="🍌 Banana Shake" data-price="100">
+        <img src="images/banana.png" alt="Banana Shake" />
+        <div class="food-info">
+          <h4>🍌 Banana Shake</h4>
+          <p>₹100 • 250ml</p>
+          <div class="quantity-control">
+            <button onclick="decreaseQty(this)">−</button>
+            <span class="qty">0</span>
+            <button onclick="increaseQty(this)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="global-add-btn" onclick="addAllToCart('milkshake-options')">Add to Cart</button>
+      <button class="back-btn" onclick="goBack()">← Main Menu</button>
+    </div>
+
+    <!-- Cold Coffee Options -->
+    <div class="food-options" id="coldcoffee-options">
+      <div class="food-card" data-id="201" data-name="☕ Mocha" data-price="150">
+        <img src="images/mocha.png" alt="Mocha" />
+        <div class="food-info">
+          <h4>☕ Mocha</h4>
+          <p>₹150 • 350ml</p>
+          <div class="quantity-control">
+            <button onclick="decreaseQty(this)">−</button>
+            <span class="qty">0</span>
+            <button onclick="increaseQty(this)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="food-card" data-id="202" data-name="☕ Iced Latte" data-price="140">
+        <img src="images/latte.png" alt="Iced Latte" />
+        <div class="food-info">
+          <h4>☕ Iced Latte</h4>
+          <p>₹140 • 300ml</p>
+          <div class="quantity-control">
+            <button onclick="decreaseQty(this)">−</button>
+            <span class="qty">0</span>
+            <button onclick="increaseQty(this)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="addAllToCart('coldcoffee-options')" class="main-add-btn">Add to Cart</button>
+      <button class="back-btn" onclick="goBack()">← Main Menu</button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item active" data-tab="home" onclick="goBack()">
+        <i data-lucide="home"></i>
+        <span>Home</span>
+      </div>
+      <a href="cart.html" class="nav-item" data-tab="bag">
+        <i data-lucide="shopping-bag"></i>
+        <span>Bag</span>
+      </a>
+      <div class="nav-item" data-tab="orders">
+        <i data-lucide="clipboard-list"></i>
+        <span>Orders</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function toggleOptions(type) {
+      document.querySelector(".card-section").style.display = "none";
+      document.getElementById("milkshake-options").style.display = type === "milkshake" ? "block" : "none";
+      document.getElementById("coldcoffee-options").style.display = type === "coldcoffee" ? "block" : "none";
+    }
+
+    function goBack() {
+      document.querySelector(".card-section").style.display = "flex";
+      document.getElementById("milkshake-options").style.display = "none";
+      document.getElementById("coldcoffee-options").style.display = "none";
+    }
+
+    function increaseQty(btn) {
+      let span = btn.parentElement.querySelector(".qty");
+      span.textContent = parseInt(span.textContent) + 1;
+    }
+
+    function decreaseQty(btn) {
+      let span = btn.parentElement.querySelector(".qty");
+      let current = parseInt(span.textContent);
+      if (current > 0) span.textContent = current - 1;
+    }
+
+    function addAllToCart(sectionId) {
+      const section = document.getElementById(sectionId);
+      const cards = section.querySelectorAll('.food-card');
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      let addedNames = [];
+
+      cards.forEach(card => {
+        const qty = parseInt(card.querySelector(".qty").textContent);
+        if (qty > 0) {
+          const id = parseInt(card.getAttribute("data-id"));
+          const name = card.getAttribute("data-name");
+          const price = parseInt(card.getAttribute("data-price"));
+
+          const existing = cart.find(item => item.id === id);
+          if (existing) {
+            existing.qty += qty;
+          } else {
+            cart.push({ id, name, price, qty });
+          }
+          addedNames.push(name);
+        }
+      });
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+
+      if (addedNames.length > 0) {
+        const popup = document.createElement("div");
+        popup.className = "popup-message";
+        popup.style.animation = "popupAnim 0.4s ease";
+        popup.textContent = `${addedNames.length} items added to cart!`;
+        document.body.appendChild(popup);
+
+        setTimeout(() => popup.remove(), 3000);
+      }
+    }
+
+    setTimeout(() => {
+      const popup = document.querySelector('.popup-message');
+      if (popup) popup.remove();
+    }, 3000);
+  </script>
+</body>
+</html>
