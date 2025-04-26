@@ -47,100 +47,78 @@ function addAllToCart(sectionId) {
 }
 
 // Render Cart on cart.html
+window.addEventListener('DOMContentLoaded', renderCart);
+
 function renderCart() {
+  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
   const cartContainer = document.getElementById("cartItems");
-  if (!cartContainer) return;
+  cartContainer.innerHTML = '';
 
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  cartContainer.innerHTML = "";
-
-  const existingPayment = document.querySelector('.payment-section');
-  if (existingPayment) existingPayment.remove();
-
-  if (cart.length === 0) {
-    cartContainer.innerHTML = `<p class='text-center text-gray-500'>Your cart is empty.</p>`;
+  if (cartItems.length === 0) {
+    cartContainer.innerHTML = '<p class="text-center">Your cart is empty.</p>';
     return;
   }
 
-  let total = 0;
-  cart.forEach((item, index) => {
-    total += item.price * item.qty;
-    const card = document.createElement("div");
-    card.className = "bg-white p-4 rounded shadow flex justify-between items-center mb-2";
-    card.innerHTML = `
-      <div>
-        <h2 class="font-semibold">${item.name}</h2>
+  cartItems.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = 'food-card';
+    div.innerHTML = `
+      <div class="food-info">
+        <h4>${item.name}</h4>
         <p>₹${item.price} × ${item.qty}</p>
-      </div>
-      <div class="space-x-2">
-        <button onclick="changeQty(${index}, -1)" class="bg-gray-300 px-2 rounded">-</button>
-        <button onclick="changeQty(${index}, 1)" class="bg-gray-300 px-2 rounded">+</button>
+        <div class="quantity-control">
+          <button onclick="updateQty(${index}, -1)">−</button>
+          <span class="qty">${item.qty}</span>
+          <button onclick="updateQty(${index}, 1)">+</button>
+        </div>
       </div>
     `;
-    cartContainer.appendChild(card);
+    cartContainer.appendChild(div);
   });
 
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const totalDiv = document.createElement("div");
   totalDiv.className = "text-right font-bold text-xl mt-4";
   totalDiv.textContent = `Total: ₹${total}`;
   cartContainer.appendChild(totalDiv);
 }
 
-function changeQty(index, delta) {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  cart[index].qty += delta;
-  if (cart[index].qty <= 0) cart.splice(index, 1);
-  localStorage.setItem("cart", JSON.stringify(cart));
+function updateQty(index, change) {
+  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+  cartItems[index].qty += change;
+  if (cartItems[index].qty < 1) cartItems.splice(index, 1);
+  localStorage.setItem("cart", JSON.stringify(cartItems));
   renderCart();
-  const paymentSection = document.querySelector('.payment-section');
-  if (paymentSection) paymentSection.remove();
 }
 
 function checkout() {
   const name = document.getElementById("customerName").value.trim();
-  if (!name) {
-    showPopup("Please enter your name.", "error");
-    return;
-  }
+  if (!name) return alert("Please enter your name");
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  if (cart.length === 0) {
-    showPopup("Cart is empty.", "error");
-    return;
-  }
+  if (cart.length === 0) return alert("Your cart is empty");
 
   localStorage.setItem("customerName", name);
-  redirectToPayment(name, cart);
+  redirectToPayment();
 }
 
 function redirectToPayment() {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
   const name = document.getElementById("customerName").value.trim();
 
-  if (!name) {
-    showPopup("Please enter your name.", "error");
-    return;
-  }
-
-  if (cart.length === 0) {
-    showPopup("Cart is empty.", "error");
-    return;
-  }
+  if (!name) return alert("Please enter your name");
+  if (cart.length === 0) return alert("Cart is empty");
 
   let total = 0;
-  cart.forEach(item => {
-    total += item.price * item.qty;
-  });
+  cart.forEach(item => total += item.price * item.qty);
 
-  const upiID = "syed.4292-0@wahdfcbank"; // Replace with your actual UPI ID
-  const payeeName = name;
-  const upiLink = `upi://pay?pa=${encodeURIComponent(upiID)}&pn=${encodeURIComponent(payeeName)}&am=${total}&cu=INR`;
+  const upiID = "syed.4292-0@wahdfcbank";
+  const upiLink = `upi://pay?pa=${encodeURIComponent(upiID)}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR`;
 
-  // Remove previous UPI section if exists
+  // Remove existing UPI section if it exists
   const existingUPI = document.getElementById("upiPaymentSection");
   if (existingUPI) existingUPI.remove();
 
-  // Build the new UPI section
   const div = document.createElement("div");
   div.id = "upiPaymentSection";
   div.className = "mt-6 text-center px-4";
@@ -151,7 +129,10 @@ function redirectToPayment() {
          style="width: 150px; height: 150px; object-fit: contain;" />
 
     <p class="text-sm mt-3">
-      or <a href="${upiLink}" class="text-blue-600 underline font-medium" target="_blank">Tap to Pay in UPI App</a>
+      or <a href="${upiLink}" target="_blank" rel="noopener noreferrer"
+      class="bg-blue-600 text-white px-4 py-2 rounded inline-block mt-2 shadow hover:bg-blue-700 transition">
+        🔗 Tap to Pay in UPI App
+      </a>
     </p>
     <p class="text-xs mt-2 text-gray-600">UPI ID: <span class="font-semibold">${upiID}</span></p>
     <p class="text-xs text-gray-500 mt-1">Amount: <span class="font-semibold text-black">₹${total}</span></p>
@@ -160,13 +141,18 @@ function redirectToPayment() {
   document.getElementById("cartItems").appendChild(div);
 }
 
-
 function clearCart() {
-  localStorage.removeItem("cart");
-  renderCart();
-  showPopup("Cart cleared!", "success");
+  if (confirm("Are you sure you want to clear the cart?")) {
+    localStorage.removeItem("cart");
+    renderCart();
+    const upiSection = document.getElementById("upiPaymentSection");
+    if (upiSection) upiSection.remove();
+  }
 }
 
+function goBackToMain() {
+  window.location.href = "index.html";
+}
 function showPopup(message, type = "success") {
   const popup = document.createElement("div");
   popup.className = `popup ${type === "success" ? "success-popup" : "error-popup"}`;
