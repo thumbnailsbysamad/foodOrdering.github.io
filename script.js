@@ -7,7 +7,7 @@ const menu = [
   { id: 6, name: "☕ Cold Coffee (L)", price: 80 }
 ];
 
-// Add item to cart by ID
+// Add item to cart
 function addToCart(itemId) {
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
   const item = menu.find(i => i.id === itemId);
@@ -23,32 +23,7 @@ function addToCart(itemId) {
   showPopup(`${item.name} added to cart!`, "success");
 }
 
-// Add all visible items in a section to cart
-function addAllToCart(sectionId) {
-  const section = document.getElementById(sectionId);
-  if (!section) return; // prevent errors if sectionId is invalid
-
-  const cards = section.querySelectorAll('.food-card');
-  let count = 0;
-
-  cards.forEach(card => {
-    const id = parseInt(card.getAttribute('data-id'));
-    if (!isNaN(id)) {
-      addToCart(id);
-      count++;
-    }
-  });
-
-  if (count > 0) {
-    showPopup(`${count} item(s) added to cart from ${sectionId}`, "success");
-  } else {
-    showPopup("No items found to add in this section.", "error");
-  }
-}
-
-// Render Cart on cart.html
-window.addEventListener('DOMContentLoaded', renderCart);
-
+// Render Cart
 function renderCart() {
   const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
   const cartContainer = document.getElementById("cartItems");
@@ -83,6 +58,7 @@ function renderCart() {
   cartContainer.appendChild(totalDiv);
 }
 
+// Update quantity
 function updateQty(index, change) {
   const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
   cartItems[index].qty += change;
@@ -91,6 +67,7 @@ function updateQty(index, change) {
   renderCart();
 }
 
+// Proceed to Checkout
 function checkout() {
   const name = document.getElementById("customerName").value.trim();
   if (!name) return alert("Please enter your name");
@@ -99,76 +76,63 @@ function checkout() {
   if (cart.length === 0) return alert("Your cart is empty");
 
   localStorage.setItem("customerName", name);
-  redirectToPayment();
+
+  startRazorpayPayment(name);
 }
 
-function redirectToPayment() {
+// Razorpay Integration
+function startRazorpayPayment(customerName) {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const name = document.getElementById("customerName").value.trim();
+  const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  if (!name) return alert("Please enter your name");
-  if (cart.length === 0) return alert("Cart is empty");
+  const options = {
+    key: "rzp_test_AtBLYVtmhCUmGY", // <-- Replace with your Razorpay Key
+    amount: totalAmount * 100, // Razorpay expects amount in paise
+    currency: "INR",
+    name: "Coldgen",
+    description: "Milkshake Stall Order",
+    image: "images/logo.png", // Optional logo
+    handler: function (response) {
+      // Payment success logic
+      alert("Payment Successful! Payment ID: " + response.razorpay_payment_id);
+      localStorage.removeItem("cart");
+      window.location.href = "thankyou.html"; // Redirect after successful payment
+    },
+    prefill: {
+      name: customerName,
+      email: "", // Optional: Collect email
+      contact: "" // Optional: Collect phone
+    },
+    theme: {
+      color: "#4CAF50"
+    }
+  };
 
-  let total = 0;
-  cart.forEach(item => total += item.price * item.qty);
-
-  const upiID = "syed.4292-0@wahdfcbank";
-  const upiLink = `upi://pay?pa=${encodeURIComponent(upiID)}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR`;
-
-  // Remove existing UPI section if it exists
-  const existingUPI = document.getElementById("upiPaymentSection");
-  if (existingUPI) existingUPI.remove();
-
-  const div = document.createElement("div");
-  div.id = "upiPaymentSection";
-  div.className = "mt-6 text-center px-4";
-  div.innerHTML = `
-    <p class="mb-2 font-bold text-green-600 text-base">Scan to Pay:</p>
-    <img src="images/Screenshot_2025-04-26-06-18-34-270_com.whatsapp-edit.jpg" alt="My UPI QR Code"
-         class="mx-auto rounded-xl shadow border border-gray-300"
-         style="width: 150px; height: 150px; object-fit: contain;" />
-
-    <p class="text-sm mt-3">
-      or <a href="${upiLink}" target="_blank" rel="noopener noreferrer"
-      class="bg-blue-600 text-white px-4 py-2 rounded inline-block mt-2 shadow hover:bg-blue-700 transition">
-        🔗 Tap to Pay in UPI App
-      </a>
-    </p>
-    <p class="text-xs mt-2 text-gray-600">UPI ID: <span class="font-semibold">${upiID}</span></p>
-    <p class="text-xs text-gray-500 mt-1">Amount: <span class="font-semibold text-black">₹${total}</span></p>
-  `;
-
-  document.getElementById("cartItems").appendChild(div);
+  const rzp = new Razorpay(options);
+  rzp.open();
 }
 
+// Clear cart
 function clearCart() {
   if (confirm("Are you sure you want to clear the cart?")) {
     localStorage.removeItem("cart");
     renderCart();
-    const upiSection = document.getElementById("upiPaymentSection");
-    if (upiSection) upiSection.remove();
   }
 }
 
+// Go back to Main Menu
 function goBackToMain() {
   window.location.href = "index.html";
 }
+
+// Popup for messages
 function showPopup(message, type = "success") {
   const popup = document.createElement("div");
   popup.className = `popup ${type === "success" ? "success-popup" : "error-popup"}`;
   popup.textContent = message;
   document.body.appendChild(popup);
-  setTimeout(() => popup.remove(), 3000);
+  setTimeout(() => popup.remove(), 1000);
 }
 
-// Auto render on cart page
-window.addEventListener("DOMContentLoaded", () => {
-  const cartContainer = document.getElementById("cartItems");
-  if (cartContainer) renderCart();
-
-  const welcome = document.getElementById("welcomePopup");
-  if (welcome) {
-    welcome.style.display = "block";
-    setTimeout(() => welcome.remove(), 3000);
-  }
-});
+// Auto render cart on page load
+window.addEventListener("DOMContentLoaded", renderCart);
