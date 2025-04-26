@@ -20,7 +20,7 @@ function addToCart(itemId) {
   }
 
   localStorage.setItem("cart", JSON.stringify(cart));
-  showPopup(`${item.name} added to cart!`, "success");
+  showPopup(`✅ ${item.name} added to cart!`, "success");
 }
 
 // Render Cart
@@ -30,7 +30,7 @@ function renderCart() {
   cartContainer.innerHTML = '';
 
   if (cartItems.length === 0) {
-    cartContainer.innerHTML = '<p class="text-center">Your cart is empty.</p>';
+    cartContainer.innerHTML = '<p class="text-center">🛒 Your cart is empty.</p>';
     return;
   }
 
@@ -70,13 +70,18 @@ function updateQty(index, change) {
 // Proceed to Checkout
 function checkout() {
   const name = document.getElementById("customerName").value.trim();
-  if (!name) return alert("Please enter your name");
+  if (!name) {
+    showPopup("⚠️ Please enter your name", "error");
+    return;
+  }
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  if (cart.length === 0) return alert("Your cart is empty");
+  if (cart.length === 0) {
+    showPopup("⚠️ Your cart is empty", "error");
+    return;
+  }
 
   localStorage.setItem("customerName", name);
-
   startRazorpayPayment(name);
 }
 
@@ -86,22 +91,24 @@ function startRazorpayPayment(customerName) {
   const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   const options = {
-    key: "rzp_test_AtBLYVtmhCUmGY", // <-- Replace with your Razorpay Key
-    amount: totalAmount * 100, // Razorpay expects amount in paise
+    key: "rzp_test_AtBLYVtmhCUmGY", // <-- Replace with your real Razorpay Key
+    amount: totalAmount * 100, // Razorpay takes amount in paise
     currency: "INR",
     name: "Coldgen",
     description: "Milkshake Stall Order",
-    image: "images/logo.png", // Optional logo
+    image: "images/logo.png", // Your logo optional
     handler: function (response) {
-      // Payment success logic
-      alert("Payment Successful! Payment ID: " + response.razorpay_payment_id);
+      // Payment success
+      showPopup("✅ Payment Successful!", "success");
       localStorage.removeItem("cart");
-      window.location.href = "thankyou.html"; // Redirect after successful payment
+      setTimeout(() => {
+        window.location.href = "thankyou.html"; // Redirect after payment
+      }, 1000);
     },
     prefill: {
       name: customerName,
-      email: "", // Optional: Collect email
-      contact: "" // Optional: Collect phone
+      email: "", // Optional: you can prefill email
+      contact: "" // Optional: you can prefill phone number
     },
     theme: {
       color: "#4CAF50"
@@ -114,16 +121,19 @@ function startRazorpayPayment(customerName) {
 
 // Clear cart
 function clearCart() {
-  if (confirm("Are you sure you want to clear the cart?")) {
+  if (confirm("🗑️ Are you sure you want to clear the cart?")) {
     localStorage.removeItem("cart");
     renderCart();
+    showPopup("🗑️ Cart cleared", "success");
   }
 }
 
-// Go back to Main Menu
 function goBackToMain() {
-  window.location.href = "index.html";
+  document.querySelector(".card-section").style.display = "flex";
+  document.getElementById("milkshake-options").style.display = "none";
+  document.getElementById("coldcoffee-options").style.display = "none";
 }
+
 
 // Popup for messages
 function showPopup(message, type = "success") {
@@ -131,8 +141,26 @@ function showPopup(message, type = "success") {
   popup.className = `popup ${type === "success" ? "success-popup" : "error-popup"}`;
   popup.textContent = message;
   document.body.appendChild(popup);
-  setTimeout(() => popup.remove(), 1000);
+  
+  setTimeout(() => {
+    popup.style.opacity = "0";
+    popup.style.transform = "translateY(-20px)";
+  }, 800); // Start animation
+  
+  setTimeout(() => popup.remove(), 1200);
 }
 
 // Auto render cart on page load
 window.addEventListener("DOMContentLoaded", renderCart);
+function viewCart() {
+  window.location.href = "cart.html"; // Redirect to your cart page
+}
+const toppingSelect = item.querySelector('.topping-select');
+const selectedTopping = toppingSelect ? toppingSelect.value : '';
+
+const cartItem = {
+  name: itemName,
+  price: itemPrice,
+  quantity: quantity,
+  topping: selectedTopping  // 🆕 Add this line
+};
