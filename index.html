@@ -7,14 +7,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-  <div class="popup-message" id="welcomePopup">Welcome to Coldgen</div>
+  <div class="popup-message" id="welcomePopup">Welcome to Slay Shakes</div>
 <body style="background: url('images/Untitled design (6).png') no-repeat center center; background-size: cover;">
 
   <div class="mobile-frame">
-    <h1 class="heading">Coldgen</h1>
+    <h1 class="heading">Slay Shakes</h1>
 
     <div class="card-section">
       <div class="card" onclick="toggleOptions('milkshake')">
@@ -69,6 +70,7 @@
       </div>
 
       <button class="global-add-btn" onclick="addAllToCart('milkshake-options')">Add to Cart</button>
+      <a href="cart.html" class="global-add-btn">View Cart</a>
       <button class="back-btn" onclick="goBack()">← Main Menu</button>
     </div>
 
@@ -100,26 +102,30 @@
         </div>
       </div>
 
-      <button onclick="addAllToCart('coldcoffee-options')" class="main-add-btn">Add to Cart</button>
+      <div class="button-group">
+        <button onclick="addAllToCart('coldcoffee-options')" class="main-add-btn">Add to Cart</button>
+        <a href="cart.html" class="global-add-btn">View Cart</a>
+      </div>
+      
       <button class="back-btn" onclick="goBack()">← Main Menu</button>
     </div>
 
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-      <div class="nav-item active" data-tab="home" onclick="goBack()">
-        <i data-lucide="home"></i>
-        <span>Home</span>
-      </div>
-      <a href="cart.html" class="nav-item" data-tab="bag">
-        <i data-lucide="shopping-bag"></i>
-        <span>Bag</span>
-      </a>
-      <div class="nav-item" data-tab="orders">
-        <i data-lucide="clipboard-list"></i>
-        <span>Orders</span>
-      </div>
-    </div>
+ <!-- Bottom Navigation -->
+<div class="bottom-nav">
+  <div class="nav-item active" data-tab="home" onclick="goBack()">
+    <i data-lucide="home"></i>
+    <span>Home</span>
   </div>
+  <a href="cart.html" class="nav-item" data-tab="bag">
+    <i data-lucide="shopping-bag"></i>
+    <span>Bag</span>
+  </a>
+  <a href="order.html" class="nav-item" data-tab="orders">
+    <i data-lucide="clipboard-list"></i>
+    <span>Orders</span>
+  </a>
+</div>
+
 
   <script>
     lucide.createIcons();
@@ -179,14 +185,14 @@
         popup.textContent = `${addedNames.length} items added to cart!`;
         document.body.appendChild(popup);
 
-        setTimeout(() => popup.remove(), 3000);
+        setTimeout(() => popup.remove(), 1000);
       }
     }
 
     setTimeout(() => {
       const popup = document.querySelector('.popup-message');
       if (popup) popup.remove();
-    }, 3000);
+    }, 1000);
   </script>
 </body>
 </html>
