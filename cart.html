@@ -29,88 +29,78 @@
   </div>
 
   <script>
-    window.addEventListener('DOMContentLoaded', renderCart);
+  window.addEventListener('DOMContentLoaded', renderCart);
 
-    function renderCart() {
-      const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-      const cartContainer = document.getElementById("cartItems");
-      cartContainer.innerHTML = '';
+function renderCart() {
+  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+  const cartContainer = document.getElementById("cartItems");
+  cartContainer.innerHTML = '';
 
-      if (cartItems.length === 0) {
-        cartContainer.innerHTML = '<p class="text-center">Your cart is empty.</p>';
-        return;
-      }
+  if (cartItems.length === 0) {
+    cartContainer.innerHTML = '<p class="text-center">Your cart is empty.</p>';
+    return;
+  }
 
-      cartItems.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'food-card';
-        div.innerHTML = `
-          <div class="food-info">
-            <h4>${item.name}</h4>
-            <p>₹${item.price} × ${item.qty}</p>
-            <div class="quantity-control">
-              <button onclick="updateQty(${index}, -1)">−</button>
-              <span class="qty">${item.qty}</span>
-              <button onclick="updateQty(${index}, 1)">+</button>
-            </div>
-          </div>
-        `;
-        cartContainer.appendChild(div);
-      });
+  cartItems.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = 'food-card';
+    div.innerHTML = `
+      <div class="food-info">
+        <h4>${item.name}</h4>
+        <p>₹${item.price} × ${item.qty}</p>
+        <div class="quantity-control">
+          <button onclick="updateQty(${index}, -1)">−</button>
+          <span class="qty">${item.qty}</span>
+          <button onclick="updateQty(${index}, 1)">+</button>
+        </div>
+      </div>
+    `;
+    cartContainer.appendChild(div);
+  });
 
-      const total = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-      const totalDiv = document.createElement("div");
-      totalDiv.className = "text-right font-bold text-xl mt-4";
-      totalDiv.textContent = `Total: ₹${total}`;
-      cartContainer.appendChild(totalDiv);
-    }
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const totalDiv = document.createElement("div");
+  totalDiv.className = "text-right font-bold text-xl mt-4";
+  totalDiv.textContent = `Total: ₹${total}`;
+  cartContainer.appendChild(totalDiv);
+}
 
-    function updateQty(index, change) {
-      const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-      cartItems[index].qty += change;
-      if (cartItems[index].qty < 1) cartItems.splice(index, 1);
-      localStorage.setItem("cart", JSON.stringify(cartItems));
-      renderCart();
-    }
+function updateQty(index, change) {
+  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+  cartItems[index].qty += change;
+  if (cartItems[index].qty < 1) cartItems.splice(index, 1);
+  localStorage.setItem("cart", JSON.stringify(cartItems));
+  renderCart();
+}
 
-    function checkout() {
-      const name = document.getElementById("customerName").value;
-      if (!name) return alert("Please enter your name");
+function checkout() {
+  const name = document.getElementById("customerName").value.trim();
+  if (!name) return alert("Please enter your name");
 
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      if (cart.length === 0) return alert("Your cart is empty");
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  if (cart.length === 0) return alert("Your cart is empty");
 
-      localStorage.setItem("customerName", name);
-      redirectToPayment();
-    }
-    function redirectToPayment() {
+  localStorage.setItem("customerName", name);
+  redirectToPayment();
+}
+
+function redirectToPayment() {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
   const name = document.getElementById("customerName").value.trim();
 
-  if (!name) {
-    showPopup("Please enter your name.", "error");
-    return;
-  }
-
-  if (cart.length === 0) {
-    showPopup("Cart is empty.", "error");
-    return;
-  }
+  if (!name) return alert("Please enter your name");
+  if (cart.length === 0) return alert("Cart is empty");
 
   let total = 0;
-  cart.forEach(item => {
-    total += item.price * item.qty;
-  });
+  cart.forEach(item => total += item.price * item.qty);
 
-  const upiID = "syed.4292-0@wahdfcbank"; // Replace with your actual UPI ID
-  const payeeName = name;
-  const upiLink = `upi://pay?pa=${encodeURIComponent(upiID)}&pn=${encodeURIComponent(payeeName)}&am=${total}&cu=INR`;
+  const upiID = "syed.4292-0@wahdfcbank";
+  const upiLink = `upi://pay?pa=${encodeURIComponent(upiID)}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR`;
 
-  // Remove previous UPI section if exists
+  // Remove existing UPI section if it exists
   const existingUPI = document.getElementById("upiPaymentSection");
   if (existingUPI) existingUPI.remove();
 
-  // Build the new UPI section
   const div = document.createElement("div");
   div.id = "upiPaymentSection";
   div.className = "mt-6 text-center px-4";
@@ -121,7 +111,10 @@
          style="width: 150px; height: 150px; object-fit: contain;" />
 
     <p class="text-sm mt-3">
-      or <a href="${upiLink}" class="text-blue-600 underline font-medium" target="_blank">Tap to Pay in UPI App</a>
+      or <a href="${upiLink}" target="_blank" rel="noopener noreferrer"
+      class="bg-blue-600 text-white px-4 py-2 rounded inline-block mt-2 shadow hover:bg-blue-700 transition">
+        🔗 Tap to Pay in UPI App
+      </a>
     </p>
     <p class="text-xs mt-2 text-gray-600">UPI ID: <span class="font-semibold">${upiID}</span></p>
     <p class="text-xs text-gray-500 mt-1">Amount: <span class="font-semibold text-black">₹${total}</span></p>
@@ -130,18 +123,18 @@
   document.getElementById("cartItems").appendChild(div);
 }
 
+function clearCart() {
+  if (confirm("Are you sure you want to clear the cart?")) {
+    localStorage.removeItem("cart");
+    renderCart();
+    const upiSection = document.getElementById("upiPaymentSection");
+    if (upiSection) upiSection.remove();
+  }
+}
 
-
-    function clearCart() {
-      if (confirm("Are you sure you want to clear the cart?")) {
-        localStorage.removeItem("cart");
-        renderCart();
-      }
-    }
-
-    function goBackToMain() {
-      window.location.href = "index.html";
-    }
+function goBackToMain() {
+  window.location.href = "index.html";
+}
   </script>
 </body>
 </html>
