@@ -83,26 +83,34 @@
       localStorage.setItem("customerName", name);
       redirectToPayment();
     }
-
     function redirectToPayment() {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
   const name = document.getElementById("customerName").value.trim();
+
+  if (!name) {
+    showPopup("Please enter your name.", "error");
+    return;
+  }
+
+  if (cart.length === 0) {
+    showPopup("Cart is empty.", "error");
+    return;
+  }
 
   let total = 0;
   cart.forEach(item => {
     total += item.price * item.qty;
   });
 
-  const upiID = "syed.4292-0@wahdfcbank";
-  const upiLink = `upi://pay?pa=${upiID}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR`;
+  const upiID = "syed.4292-0@wahdfcbank"; // Replace with your actual UPI ID
+  const payeeName = name;
+  const upiLink = `upi://pay?pa=${encodeURIComponent(upiID)}&pn=${encodeURIComponent(payeeName)}&am=${total}&cu=INR`;
 
-  // Remove previous payment section if it exists
+  // Remove previous UPI section if exists
   const existingUPI = document.getElementById("upiPaymentSection");
-  if (existingUPI) {
-    existingUPI.remove();
-  }
+  if (existingUPI) existingUPI.remove();
 
-  // Create payment section with properly sized QR
+  // Build the new UPI section
   const div = document.createElement("div");
   div.id = "upiPaymentSection";
   div.className = "mt-6 text-center px-4";
@@ -111,7 +119,7 @@
     <img src="images/Screenshot_2025-04-26-06-18-34-270_com.whatsapp-edit.jpg" alt="My UPI QR Code"
          class="mx-auto rounded-xl shadow border border-gray-300"
          style="width: 150px; height: 150px; object-fit: contain;" />
-    
+
     <p class="text-sm mt-3">
       or <a href="${upiLink}" class="text-blue-600 underline font-medium" target="_blank">Tap to Pay in UPI App</a>
     </p>
@@ -121,6 +129,7 @@
 
   document.getElementById("cartItems").appendChild(div);
 }
+
 
 
     function clearCart() {
