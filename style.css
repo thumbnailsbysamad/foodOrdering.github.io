@@ -659,10 +659,21 @@ body {
   gap: 20px;
   padding: 20px;
   position: fixed;
-  bottom: 60px; /* Moved higher: was 40px, now 80px */
+  bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
   width: auto;
+}
+
+/* On small screens (mobile) — make it scrollable */
+@media (max-width: 768px) {
+  .button-group {
+    position: static;
+    transform: none;
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+  }
 }
 
 
