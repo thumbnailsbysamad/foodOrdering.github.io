@@ -20,16 +20,16 @@ body {
 
 .mobile-frame {
   width: 100%;
+  max-width: 500px; /* or you can keep 430px if you want more iPhone-ish look */
   height: 100vh;
   overflow-y: auto;
-  background: url('images/Untitled design (6).png') no-repeat center center;
+  background: url('./images/background.png') no-repeat center center;
   background-size: cover;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border-radius: 0; /* remove border-radius for full width feeling on mobile */
+  box-shadow: none; /* optional: remove shadow if full screen */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  overflow: hidden;
   position: relative;
   animation: fadeUp 0.9s ease-out;
 }
