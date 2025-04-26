@@ -122,7 +122,7 @@ function redirectToPayment() {
     total += item.price * item.qty;
   });
 
-  const upiID = "9959864292@upi";
+  const upiID = "syed.4292-0@wahdfcbank";
   const upiLink = `upi://pay?pa=${upiID}&pn=${encodeURIComponent(name)}&am=${total}&cu=INR`;
 
   // Remove previous payment section if it exists
@@ -137,7 +137,7 @@ function redirectToPayment() {
   div.className = "mt-6 text-center px-4";
   div.innerHTML = `
     <p class="mb-2 font-bold text-green-600 text-base">Scan to Pay:</p>
-    <img src="images/QrCode.jpeg" alt="My UPI QR Code"
+    <img src="images/Screenshot_2025-04-26-06-18-34-270_com.whatsapp-edit.jpg" alt="My UPI QR Code"
          class="mx-auto rounded-xl shadow border border-gray-300"
          style="width: 150px; height: 150px; object-fit: contain;" />
     
