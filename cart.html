@@ -5,40 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cart - Coldgen</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="https://unpkg.com/lucide@0.0.0-beta.9/dist/lucide.min.js"></script>
 </head>
-<body>
-  <body style="background: url('images/Untitled design (6).png') no-repeat center center; background-size: cover;">
-  <div class="mobile-frame">
-    <h1 class="heading">🛒 Your Cart</h1>
+<body style="background: url('images/Untitled design (6).png') no-repeat center center; background-size: cover;">
 
-    <div id="cartItems" class="food-options" style="display:block;"></div>
+<div class="mobile-frame">
+  <h1 class="heading">🛒 Your Cart</h1>
 
-    <div style="padding: 0 20px 20px;">
-      <button onclick="clearCart()" class="clear-cart-btn" style="margin-bottom: 10px;">🗑️ Clear All</button>
-      <input id="customerName" type="text" placeholder="Your Name" class="w-full p-3 border border-gray-400 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-green-400" required>
-      <button onclick="checkout()" class="button-proceed">
-        🛒 Proceed to Pay
-      </button>
+  <div id="cartItems" class="food-options" style="display:block;"></div>
 
-      <!-- Back to Main Menu Button -->
-      <button onclick="goBackToMain()" class="button-back">
-        ← Back to Main Menu
-      </button>
-    </div>
+  <div style="padding: 0 20px 20px;">
+    <button onclick="clearCart()" class="clear-cart-btn" style="margin-bottom: 10px;">🗑️ Clear All</button>
+    <input id="customerName" type="text" placeholder="Your Name" class="w-full p-3 border border-gray-400 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-green-400" required>
+    <button onclick="checkout()" class="button-proceed">
+      🛒 Proceed to Pay
+    </button>
+
+    <button onclick="goBackToMain()" class="button-back">
+      ← Back to Main Menu
+    </button>
   </div>
+</div>
+
+<!-- Popup Message Styles -->
+<style>
+.popup {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  opacity: 1;
+  transition: all 0.5s ease;
+  z-index: 9999;
+}
+.success-popup { background-color: #4CAF50; }
+.error-popup { background-color: #f44336; }
+</style>
 
 <script>
-window.addEventListener('DOMContentLoaded', renderCart);
-
+// Render Cart
 function renderCart() {
   const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
   const cartContainer = document.getElementById("cartItems");
   cartContainer.innerHTML = '';
 
   if (cartItems.length === 0) {
-    cartContainer.innerHTML = '<p class="text-center">Your cart is empty.</p>';
+    cartContainer.innerHTML = '<p class="text-center">🛒 Your cart is empty.</p>';
     return;
   }
 
@@ -66,6 +81,7 @@ function renderCart() {
   cartContainer.appendChild(totalDiv);
 }
 
+// Update quantity
 function updateQty(index, change) {
   const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
   cartItems[index].qty += change;
@@ -74,60 +90,67 @@ function updateQty(index, change) {
   renderCart();
 }
 
+// Checkout
 function checkout() {
   const name = document.getElementById("customerName").value.trim();
-  if (!name) return alert("Please enter your name");
+  if (!name) {
+    showPopup("⚠️ Please enter your name", "error");
+    return;
+  }
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  if (cart.length === 0) return alert("Your cart is empty");
+  if (cart.length === 0) {
+    showPopup("⚠️ Your cart is empty", "error");
+    return;
+  }
 
   localStorage.setItem("customerName", name);
-  redirectToPayment();
+  startUPIPayment(name);
 }
 
-function redirectToPayment() {
+// Start UPI Payment
+function startUPIPayment(customerName) {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const name = document.getElementById("customerName").value.trim();
+  const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  if (!name) return alert("Please enter your name");
-  if (cart.length === 0) return alert("Cart is empty");
+  const merchantUpiId = "9391921245@okbizaxis"; // <-- Change to your friend's real UPI ID
+  const upiLink = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(customerName)}&am=${totalAmount}&cu=INR`;
 
-  let total = 0;
-  cart.forEach(item => total += item.price * item.qty);
-
-  const options = {
-    "key": "rzp_test_AtBLYVtmhCUmGY", // 🔥 Replace this with your Razorpay Key ID
-    "amount": total * 100, // Razorpay takes amount in paise (₹1 = 100 paise)
-    "currency": "INR",
-    "name": "Coldgen", // Your stall name or company name
-    "description": "Food Cart Payment",
-    "handler": function (response) {
-      alert("Payment Successful! Payment ID: " + response.razorpay_payment_id);
-      localStorage.removeItem("cart");
-      window.location.href = "success.html"; // Optional: create a success page
-    },
-    "prefill": {
-      "name": name,
-    },
-    "theme": {
-      "color": "#3399cc"
-    }
-  };
-
-  const rzp = new Razorpay(options);
-  rzp.open();
+  window.location.href = upiLink;
 }
 
+// Clear Cart
 function clearCart() {
-  if (confirm("Are you sure you want to clear the cart?")) {
+  if (confirm("🗑️ Are you sure you want to clear the cart?")) {
     localStorage.removeItem("cart");
     renderCart();
+    showPopup("🗑️ Cart cleared", "success");
   }
 }
 
+// Go Back
 function goBackToMain() {
   window.location.href = "index.html";
 }
+
+// Popup Function
+function showPopup(message, type = "success") {
+  const popup = document.createElement("div");
+  popup.className = `popup ${type === "success" ? "success-popup" : "error-popup"}`;
+  popup.textContent = message;
+  document.body.appendChild(popup);
+  
+  setTimeout(() => {
+    popup.style.opacity = "0";
+    popup.style.transform = "translateY(-20px)";
+  }, 800);
+  
+  setTimeout(() => popup.remove(), 1200);
+}
+
+// Auto render on page load
+window.addEventListener('DOMContentLoaded', renderCart);
 </script>
+
 </body>
 </html>
