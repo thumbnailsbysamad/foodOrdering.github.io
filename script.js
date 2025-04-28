@@ -71,15 +71,28 @@ function updateQty(index, change) {
   renderCart();
 }
 
-// Start UPI Payment
+// Generate QR Code dynamically
 function startUPIPayment(customerName) {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
   const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  const merchantUpiId = "9391921245@okbizaxis"; // <-- Put your friend's merchant UPI ID here
+  const merchantUpiId = "9391921245@okbizaxis"; // <-- Your UPI ID
   const upiLink = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(customerName)}&am=${totalAmount}&cu=INR`;
 
-  window.location.href = upiLink;
+  const qrContainer = document.getElementById("qrContainer");
+  qrContainer.innerHTML = "";
+
+  const qr = new QRCode(qrContainer, {
+    text: upiLink,
+    width: 256,
+    height: 256,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  document.getElementById("checkout-section").style.display = "none";
+  document.getElementById("qr-section").style.display = "block";
 }
 
 // Proceed to Checkout
