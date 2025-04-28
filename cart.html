@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cart - Coldgen</title>
+  <title>Cart - Slay Shakes</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script> <!-- QR Code library -->
 </head>
 <body style="background: url('images/Untitled design (6).png') no-repeat center center; background-size: cover;">
 
@@ -13,16 +14,23 @@
 
   <div id="cartItems" class="food-options" style="display:block;"></div>
 
-  <div style="padding: 0 20px 20px;">
+  <div id="paymentSection" style="padding: 0 20px 20px;">
     <button onclick="clearCart()" class="clear-cart-btn" style="margin-bottom: 10px;">🗑️ Clear All</button>
     <input id="customerName" type="text" placeholder="Your Name" class="w-full p-3 border border-gray-400 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-green-400" required>
     <button onclick="checkout()" class="button-proceed">
       🛒 Proceed to Pay
     </button>
-
     <button onclick="goBackToMain()" class="button-back">
       ← Back to Main Menu
     </button>
+  </div>
+
+  <!-- QR Code Section -->
+  <div id="qrSection" style="text-align: center; padding: 20px; display: none;">
+    <h2 class="text-xl mb-4">📱 Scan to Pay</h2>
+    <canvas id="qrcode"></canvas>
+    <p id="upiText" style="margin-top: 10px; font-weight: bold;"></p>
+    <button onclick="confirmPayment()" class="button-proceed" style="margin-top: 20px;">✅ Paid? Confirm Order</button>
   </div>
 </div>
 
@@ -105,18 +113,27 @@ function checkout() {
   }
 
   localStorage.setItem("customerName", name);
-  startUPIPayment(name);
+  generateQRCode(name);
 }
 
-// Start UPI Payment
-function startUPIPayment(customerName) {
+// Generate QR Code
+function generateQRCode(customerName) {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
   const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  const merchantUpiId = "9391921245@okbizaxis"; // <-- Change to your friend's real UPI ID
+  const merchantUpiId = "9391921245@okbizaxis"; // Change this to real UPI ID
   const upiLink = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(customerName)}&am=${totalAmount}&cu=INR`;
 
-  window.location.href = upiLink;
+  document.getElementById("paymentSection").style.display = "none";
+  document.getElementById("qrSection").style.display = "block";
+
+  const qr = new QRious({
+    element: document.getElementById('qrcode'),
+    value: upiLink,
+    size: 250
+  });
+
+  document.getElementById('upiText').innerText = `Amount: ₹${totalAmount}`;
 }
 
 // Clear Cart
@@ -133,18 +150,25 @@ function goBackToMain() {
   window.location.href = "index.html";
 }
 
+// Confirm Payment
+function confirmPayment() {
+  localStorage.removeItem("cart");
+  alert("✅ Payment confirmed! Thank you for your order.");
+  window.location.href = "index.html";
+}
+
 // Popup Function
 function showPopup(message, type = "success") {
   const popup = document.createElement("div");
   popup.className = `popup ${type === "success" ? "success-popup" : "error-popup"}`;
   popup.textContent = message;
   document.body.appendChild(popup);
-  
+
   setTimeout(() => {
     popup.style.opacity = "0";
     popup.style.transform = "translateY(-20px)";
   }, 800);
-  
+
   setTimeout(() => popup.remove(), 1200);
 }
 
