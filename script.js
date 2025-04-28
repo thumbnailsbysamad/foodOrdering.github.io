@@ -1,10 +1,13 @@
+// Updated Menu
 const menu = [
-  { id: 1, name: "🥤 Chocolate Milkshake (S)", price: 50 },
-  { id: 2, name: "🥤 Chocolate Milkshake (M)", price: 70 },
-  { id: 3, name: "🥤 Chocolate Milkshake (L)", price: 90 },
-  { id: 4, name: "☕ Cold Coffee (S)", price: 40 },
-  { id: 5, name: "☕ Cold Coffee (M)", price: 60 },
-  { id: 6, name: "☕ Cold Coffee (L)", price: 80 }
+  { id: 1, name: "🥤 Choco Bomb Shake", price: 110 },
+  { id: 2, name: "🥤 Classic Vanilla Buzz", price: 10 },
+  { id: 3, name: "🥤 Oreo Swirl Shake", price: 120 },
+  { id: 4, name: "🥤 Crunchy KitKat Shake", price: 120 },
+  { id: 5, name: "🥤 Nutella Love", price: 120 },
+  { id: 6, name: "☕ Classic Chill Coffee", price: 100 },
+  { id: 7, name: "☕ Nutella Chill Brew", price: 100 },
+  { id: 8, name: "☕ Chill Caramel Frappe", price: 120 }
 ];
 
 // Add item to cart
@@ -37,6 +40,7 @@ function renderCart() {
   cartItems.forEach((item, index) => {
     const div = document.createElement('div');
     div.className = 'food-card';
+
     div.innerHTML = `
       <div class="food-info">
         <h4>${item.name}</h4>
@@ -67,6 +71,17 @@ function updateQty(index, change) {
   renderCart();
 }
 
+// Start UPI Payment
+function startUPIPayment(customerName) {
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+  const merchantUpiId = "9391921245@okbizaxis"; // <-- Put your friend's merchant UPI ID here
+  const upiLink = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(customerName)}&am=${totalAmount}&cu=INR`;
+
+  window.location.href = upiLink;
+}
+
 // Proceed to Checkout
 function checkout() {
   const name = document.getElementById("customerName").value.trim();
@@ -82,41 +97,7 @@ function checkout() {
   }
 
   localStorage.setItem("customerName", name);
-  startRazorpayPayment(name);
-}
-
-// Razorpay Integration
-function startRazorpayPayment(customerName) {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-
-  const options = {
-    key: "rzp_test_AtBLYVtmhCUmGY", // <-- Replace with your real Razorpay Key
-    amount: totalAmount * 100, // Razorpay takes amount in paise
-    currency: "INR",
-    name: "Coldgen",
-    description: "Milkshake Stall Order",
-    image: "images/logo.png", // Your logo optional
-    handler: function (response) {
-      // Payment success
-      showPopup("✅ Payment Successful!", "success");
-      localStorage.removeItem("cart");
-      setTimeout(() => {
-        window.location.href = "thankyou.html"; // Redirect after payment
-      }, 1000);
-    },
-    prefill: {
-      name: customerName,
-      email: "", // Optional: you can prefill email
-      contact: "" // Optional: you can prefill phone number
-    },
-    theme: {
-      color: "#4CAF50"
-    }
-  };
-
-  const rzp = new Razorpay(options);
-  rzp.open();
+  startUPIPayment(name);
 }
 
 // Clear cart
@@ -134,33 +115,38 @@ function goBackToMain() {
   document.getElementById("coldcoffee-options").style.display = "none";
 }
 
-
 // Popup for messages
 function showPopup(message, type = "success") {
   const popup = document.createElement("div");
   popup.className = `popup ${type === "success" ? "success-popup" : "error-popup"}`;
   popup.textContent = message;
   document.body.appendChild(popup);
-  
+
   setTimeout(() => {
     popup.style.opacity = "0";
     popup.style.transform = "translateY(-20px)";
-  }, 800); // Start animation
-  
+  }, 800);
+
   setTimeout(() => popup.remove(), 1200);
 }
 
 // Auto render cart on page load
 window.addEventListener("DOMContentLoaded", renderCart);
-function viewCart() {
-  window.location.href = "cart.html"; // Redirect to your cart page
-}
-const toppingSelect = item.querySelector('.topping-select');
-const selectedTopping = toppingSelect ? toppingSelect.value : '';
 
-const cartItem = {
-  name: itemName,
-  price: itemPrice,
-  quantity: quantity,
-  topping: selectedTopping  // 🆕 Add this line
-};
+function viewCart() {
+  window.location.href = "cart.html";
+}
+
+function increaseQty(button) {
+  const qtySpan = button.previousElementSibling;
+  let qty = parseInt(qtySpan.textContent);
+  qty++;
+  qtySpan.textContent = qty;
+}
+
+function decreaseQty(button) {
+  const qtySpan = button.nextElementSibling;
+  let qty = parseInt(qtySpan.textContent);
+  if (qty > 0) qty--;
+  qtySpan.textContent = qty;
+}
