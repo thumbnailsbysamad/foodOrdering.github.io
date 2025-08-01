@@ -6,17 +6,18 @@
   <title>Cart - Slay Shakes</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script> <!-- QR Code library -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body style="background: url('images/Untitled design (6).png') no-repeat center center; background-size: cover;">
 
 <div class="mobile-frame">
   <h1 class="heading">🛒 Your Cart</h1>
 
-  <div id="cartItems" class="food-options" style="display:block;"></div>
+  <div id="cartItems" class="food-options"></div> <!-- Reusing food-options class for consistent styling -->
 
   <div id="paymentSection" style="padding: 0 20px 20px;">
     <button onclick="clearCart()" class="clear-cart-btn" style="margin-bottom: 10px;">🗑️ Clear All</button>
-    <input id="customerName" type="text" placeholder="Your Name" class="w-full p-3 border border-gray-400 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-green-400" required>
+    <input id="customerName" type="text" placeholder="Your Name" class="input-field" required>
     <button onclick="checkout()" class="button-proceed">
       🛒 Proceed to Pay
     </button>
@@ -32,148 +33,29 @@
     <p id="upiText" style="margin-top: 10px; font-weight: bold;"></p>
     <button onclick="confirmPayment()" class="button-proceed" style="margin-top: 20px;">✅ Paid? Confirm Order</button>
   </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <i data-lucide="home"></i>
+      <span>Home</span>
+    </a>
+    <div class="nav-item active">
+      <i data-lucide="shopping-bag"></i>
+      <span>Bag</span>
+    </div>
+    <a href="orders.html" class="nav-item">
+      <i data-lucide="clipboard-list"></i>
+      <span>Orders</span>
+    </a>
+  </div>
 </div>
 
-<!-- Popup Message Styles -->
-<style>
-.popup {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: #fff;
-  padding: 12px 20px;
-  border-radius: 8px;
-  opacity: 1;
-  transition: all 0.5s ease;
-  z-index: 9999;
-}
-.success-popup { background-color: #4CAF50; }
-.error-popup { background-color: #f44336; }
-</style>
-
+<script src="main.js"></script>
 <script>
-// Render Cart
-function renderCart() {
-  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-  const cartContainer = document.getElementById("cartItems");
-  cartContainer.innerHTML = '';
-
-  if (cartItems.length === 0) {
-    cartContainer.innerHTML = '<p class="text-center">🛒 Your cart is empty.</p>';
-    return;
-  }
-
-  cartItems.forEach((item, index) => {
-    const div = document.createElement('div');
-    div.className = 'food-card';
-    div.innerHTML = `
-      <div class="food-info">
-        <h4>${item.name}</h4>
-        <p>₹${item.price} × ${item.qty}</p>
-        <div class="quantity-control">
-          <button onclick="updateQty(${index}, -1)">−</button>
-          <span class="qty">${item.qty}</span>
-          <button onclick="updateQty(${index}, 1)">+</button>
-        </div>
-      </div>
-    `;
-    cartContainer.appendChild(div);
-  });
-
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const totalDiv = document.createElement("div");
-  totalDiv.className = "text-right font-bold text-xl mt-4";
-  totalDiv.textContent = `Total: ₹${total}`;
-  cartContainer.appendChild(totalDiv);
-}
-
-// Update quantity
-function updateQty(index, change) {
-  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-  cartItems[index].qty += change;
-  if (cartItems[index].qty < 1) cartItems.splice(index, 1);
-  localStorage.setItem("cart", JSON.stringify(cartItems));
-  renderCart();
-}
-
-// Checkout
-function checkout() {
-  const name = document.getElementById("customerName").value.trim();
-  if (!name) {
-    showPopup("⚠️ Please enter your name", "error");
-    return;
-  }
-
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  if (cart.length === 0) {
-    showPopup("⚠️ Your cart is empty", "error");
-    return;
-  }
-
-  localStorage.setItem("customerName", name);
-  generateQRCode(name);
-}
-
-// Generate QR Code
-function generateQRCode(customerName) {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-
-  const merchantUpiId = "9391921245@okbizaxis"; // Change this to real UPI ID
-  const upiLink = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(customerName)}&am=${totalAmount}&cu=INR`;
-
-  document.getElementById("paymentSection").style.display = "none";
-  document.getElementById("qrSection").style.display = "block";
-
-  const qr = new QRious({
-    element: document.getElementById('qrcode'),
-    value: upiLink,
-    size: 250
-  });
-
-  document.getElementById('upiText').innerText = `Amount: ₹${totalAmount}`;
-}
-
-// Clear Cart
-function clearCart() {
-  if (confirm("🗑️ Are you sure you want to clear the cart?")) {
-    localStorage.removeItem("cart");
-    renderCart();
-    showPopup("🗑️ Cart cleared", "success");
-  }
-}
-
-// Go Back
-function goBackToMain() {
-  window.location.href = "index.html";
-}
-
-// Confirm Payment
-function confirmPayment() {
-  localStorage.removeItem("cart");
-  alert("✅ Payment confirmed! Thank you for your order.");
-  window.location.href = "index.html";
-}
-
-// Popup Function
-function showPopup(message, type = "success") {
-  const popup = document.createElement("div");
-  popup.className = `popup ${type === "success" ? "success-popup" : "error-popup"}`;
-  popup.textContent = message;
-  document.body.appendChild(popup);
-
-  setTimeout(() => {
-    popup.style.opacity = "0";
-    popup.style.transform = "translateY(-20px)";
-  }, 800);
-
-  setTimeout(() => popup.remove(), 1200);
-}
-
-// Auto render on page load
-window.addEventListener('DOMContentLoaded', renderCart);
+  // Page-specific initialization for cart.html
+  lucide.createIcons();
+  window.addEventListener('DOMContentLoaded', renderCart); // Renders cart on page load
 </script>
 
 </body>
