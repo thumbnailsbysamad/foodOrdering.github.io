@@ -3,141 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Orders - Coldgen</title>
+  <title>Your Orders - Slay Shakes</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
-
-  <style>
-    /* Global */
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: url('images/Untitled design (6).png') no-repeat center center;
-      background-size: cover;
-    }
-
-    .mobile-frame {
-      max-width: 420px;
-      margin: 0 auto;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background-color: rgba(255, 255, 255, 0.05); /* slight white tint */
-      backdrop-filter: blur(6px);
-      border-left: 1px solid rgba(255,255,255,0.1);
-      border-right: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .heading {
-      text-align: center;
-      font-size: 2rem;
-      margin-top: 1rem;
-      font-family: 'Bungee', cursive;
-      color: #ffffff;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    }
-
-    #ordersContainer {
-      padding: 1rem;
-      flex-grow: 1;
-    }
-
-    /* Orders */
-    .order-card {
-      background: #ffffff;
-      border-radius: 1rem;
-      margin-bottom: 1.2rem;
-      padding: 1rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      animation: fadeIn 0.5s ease forwards;
-    }
-
-    .order-card h3 {
-      font-family: 'Bungee', cursive;
-      margin: 0;
-      font-size: 1.2rem;
-      color: #333;
-    }
-
-    .order-date {
-      font-size: 0.8rem;
-      color: #777;
-      margin-top: 0.4rem;
-    }
-
-    .order-items {
-      margin: 0.6rem 0;
-      padding-left: 1.2rem;
-    }
-
-    .order-items li {
-      font-size: 0.9rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .order-total {
-      font-weight: bold;
-      margin-top: 0.6rem;
-      font-size: 1rem;
-    }
-
-    .text-center {
-      text-align: center;
-      font-size: 1rem;
-      color: #555;
-    }
-
-    /* Bottom Nav */
-    .bottom-nav {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      background: #ffffff;
-      padding: 0.6rem 0;
-      border-top: 1px solid #ddd;
-      border-radius: 1rem 1rem 0 0;
-      box-shadow: 0 -4px 8px rgba(0,0,0,0.05);
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 0.8rem;
-      color: #666;
-      text-decoration: none;
-    }
-
-    .nav-item i {
-      width: 24px;
-      height: 24px;
-      margin-bottom: 4px;
-    }
-
-    .nav-item.active {
-      color: #000;
-    }
-
-    .nav-item.active i {
-      stroke: #000;
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-  </style>
-
 </head>
-<body>
+<body style="background: url('images/Untitled design (6).png') no-repeat center center; background-size: cover;">
 
   <div class="mobile-frame">
     <h1 class="heading">Your Orders</h1>
 
-    <div id="ordersContainer"></div>
+    <div id="ordersContainer" style="flex-grow: 1; padding: 1rem;"></div>
 
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
@@ -156,35 +33,11 @@
     </div>
   </div>
 
+  <script src="main.js"></script>
   <script>
+    // Page-specific initialization for orders.html
     lucide.createIcons();
-
-    function loadOrders() {
-      const orders = JSON.parse(localStorage.getItem("orders")) || [];
-      const container = document.getElementById("ordersContainer");
-
-      if (orders.length === 0) {
-        container.innerHTML = `<p class="text-center" style="margin-top: 50px;">No Orders Yet 🚫</p>`;
-        return;
-      }
-
-      orders.reverse().forEach(order => {
-        const orderDiv = document.createElement('div');
-        orderDiv.className = 'order-card';
-
-        orderDiv.innerHTML = `
-          <h3>Order #${order.id}</h3>
-          <p class="order-date">${order.date}</p>
-          <ul class="order-items">
-            ${order.items.map(item => `<li>${item.name} × ${item.qty}</li>`).join('')}
-          </ul>
-          <p class="order-total">Total: ₹${order.total}</p>
-        `;
-        container.appendChild(orderDiv);
-      });
-    }
-
-    window.addEventListener('DOMContentLoaded', loadOrders);
+    window.addEventListener('DOMContentLoaded', loadOrders); // Loads orders on page load
   </script>
 
 </body>
