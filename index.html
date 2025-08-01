@@ -8,12 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    .toppings { display: none; margin-top: 10px; }
-    .show-toppings { display: block; }
-  </style>
 </head>
-<body>
+<body style="background: url('images/Untitled design (6).png') no-repeat center center; background-size: cover;">
 <div class="popup-message" id="welcomePopup">Welcome to Slay Shakes</div>
 
 <div class="mobile-frame">
@@ -122,8 +118,10 @@
       </div>
     </div>
 
-    <button class="global-add-btn" onclick="addAllToCart('milkshake-options')">Add to Cart</button>
-    <a href="cart.html" class="global-add-btn">View Cart</a>
+    <div class="button-group">
+      <button class="global-add-btn main-add-btn" onclick="addAllToCart('milkshake-options')">Add to Cart</button>
+      <a href="cart.html" class="global-add-btn view-cart-btn">View Cart</a>
+    </div>
     <button class="back-btn" onclick="goBack()">← Main Menu</button>
   </div>
 
@@ -169,81 +167,26 @@
     </div>
 
     <div class="button-group">
-      <button onclick="addAllToCart('coldcoffee-options')" class="main-add-btn">Add to Cart</button>
-      <a href="cart.html" class="global-add-btn">View Cart</a>
+      <button class="global-add-btn main-add-btn" onclick="addAllToCart('coldcoffee-options')">Add to Cart</button>
+      <a href="cart.html" class="global-add-btn view-cart-btn">View Cart</a>
     </div>
     <button class="back-btn" onclick="goBack()">← Main Menu</button>
   </div>
-
 </div>
 
+<script src="main.js"></script>
 <script>
+  // Page-specific initialization for index.html
   lucide.createIcons();
 
-  function toggleOptions(type) {
-    document.querySelector(".card-section").style.display = "none";
-    document.getElementById("milkshake-options").style.display = type === "milkshake" ? "block" : "none";
-    document.getElementById("coldcoffee-options").style.display = type === "coldcoffee" ? "block" : "none";
-  }
-
-  function goBack() {
-    document.querySelector(".card-section").style.display = "flex";
-    document.getElementById("milkshake-options").style.display = "none";
-    document.getElementById("coldcoffee-options").style.display = "none";
-  }
-
-  function increaseQty(btn) {
-    let span = btn.parentElement.querySelector(".qty");
-    span.textContent = parseInt(span.textContent) + 1;
-    let toppings = btn.closest(".food-card").querySelector(".toppings");
-    if (toppings) toppings.classList.add("show-toppings");
-  }
-
-  function decreaseQty(btn) {
-    let span = btn.parentElement.querySelector(".qty");
-    let current = parseInt(span.textContent);
-    if (current > 0) span.textContent = current - 1;
-    if (parseInt(span.textContent) == 0) {
-      let toppings = btn.closest(".food-card").querySelector(".toppings");
-      if (toppings) toppings.classList.remove("show-toppings");
-    }
-  }
-
-  function addAllToCart(sectionId) {
-    const section = document.getElementById(sectionId);
-    const cards = section.querySelectorAll('.food-card');
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    cards.forEach(card => {
-      const qty = parseInt(card.querySelector(".qty").textContent);
-      if (qty > 0) {
-        const id = parseInt(card.getAttribute("data-id"));
-        const name = card.getAttribute("data-name");
-        const price = parseInt(card.getAttribute("data-price"));
-
-        const existing = cart.find(item => item.id === id);
-        if (existing) {
-          existing.qty += qty;
-        } else {
-          cart.push({ id, name, price, qty });
-        }
-      }
-    });
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-
-    const popup = document.createElement("div");
-    popup.className = "popup-message";
-    popup.textContent = "Items added to cart!";
-    document.body.appendChild(popup);
-    setTimeout(() => popup.remove(), 1000);
-  }
-
+  // Show welcome popup on initial load
   setTimeout(() => {
-    const popup = document.querySelector('.popup-message');
-    if (popup) popup.remove();
-  }, 1000);
+    const popup = document.getElementById('welcomePopup');
+    if (popup) {
+      popup.style.animation = "popIn 0.5s ease forwards, fadeOut 0.4s ease 2.5s forwards";
+      setTimeout(() => popup.remove(), 2900); // Remove after animation ends
+    }
+  }, 100); // Small delay to ensure CSS animation starts
 </script>
-
 </body>
 </html>
